@@ -5,28 +5,34 @@ from transformers import AutoTokenizer, BertForSequenceClassification
 
 import pdb
 
-df_predict = pd.read_csv("./data/kaggle_multi_label_classify/csv/predict.csv")
-column_names = df_predict.columns[2:]
+def predict(data, tokenizer, model):
+    column_names = data.columns[2:]
+    id = 0
+    for row in data.itertuples():
+        id += 1
+        encoded_input = tokenizer(row.SENTENCES, return_tensors='pt')
+        output = model(**encoded_input)
 
-tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
-model = BertForSequenceClassification.from_pretrained("./exp/kaggle_multi_label_classify/weights")
+        sigmoid = torch.nn.Sigmoid()
+        probs = sigmoid(torch.Tensor(output.logits))
+        y_pred = np.zeros(probs.shape)
+        y_pred[np.where(probs >= 0.5)] = 1
 
-id = 0
-for row in df_predict.itertuples():
-    id += 1
-    encoded_input = tokenizer(row.SENTENCES, return_tensors='pt')
-    output = model(**encoded_input)
+        active_columns = [column_names[i] for i in range(len(column_names)) if y_pred[0, i] == 1]
 
-    sigmoid = torch.nn.Sigmoid()
-    probs = sigmoid(torch.Tensor(output.logits))
-    y_pred = np.zeros(probs.shape)
-    y_pred[np.where(probs >= 0.5)] = 1
+        print(f">>> id{id} >>>")
+        print(f"probs: {probs}")
+        print(f"labels: {active_columns}")
+        print(f"<<< id{id} <<<")
+        print("")
 
-    active_columns = [column_names[i] for i in range(len(column_names)) if y_pred[0, i] == 1]
+def main():
+    df_predict = pd.read_csv("./data/kaggle_multi_label_classify/csv/predict.csv")
 
-    print(f">>> id{id} >>>")
-    print(f"probs: {probs}")
-    print(f"labels: {active_columns}")
-    print(f"<<< id{id} <<<")
-    print("")
+    tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-uncased")
+    model = BertForSequenceClassification.from_pretrained("./exp/kaggle_multi_label_classify/weights")
 
+    predict(df_predict, tokenizer, model)
+
+if __name__=="__main__":
+    main()
