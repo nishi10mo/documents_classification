@@ -14,7 +14,7 @@ def make_graph(train_sizes, f1_scores):
     plt.plot(train_sizes, f1_scores, marker='o')
     plt.xlabel('Number of Training Samples', fontsize=12)
     plt.ylabel('f1_score on Test Data', fontsize=12)
-    plt.title('f1_score vs Training Data Size', fontsize=14)
+    plt.title('fine-tuning using BERT', fontsize=14)
     plt.grid()
 
     # ファイル名を指定して保存
@@ -29,8 +29,6 @@ def main():
         df_validation = pd.read_csv("./data/kaggle_multi_label_classify/csv/validation.csv")
         df_test = pd.read_csv("./data/kaggle_multi_label_classify/csv/test.csv")
         df_train = df_train.head(train_size)
-        df_validation = df_validation.head(100)
-        df_test = df_test.head(100)
 
         df_train["labels"] = df_train[df_train.columns[2:]].values.tolist()
         df_validation["labels"] = df_validation[df_validation.columns[2:]].values.tolist()
