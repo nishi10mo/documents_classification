@@ -29,8 +29,4 @@ def compute_metrics(p: EvalPrediction):
     result = multi_label_metrics(
         predictions=preds, 
         labels=p.label_ids)
-    pdb.set_trace()
-    print(">>> result >>>")
-    print(result)
-    print("<<< result <<<")
     return result
